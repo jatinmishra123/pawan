@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text-to-Speech Practice with Speed Scoring</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding-top: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+      color: white;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .practice-card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      margin-bottom: 30px;
+      transition: transform 0.3s ease;
+    }
+
+    .practice-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .text-display {
+      font-size: 1.4rem;
+      line-height: 1.6;
+      padding: 25px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 5px solid #4b6cb7;
+      margin: 20px 0;
+      min-height: 180px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+      border: none;
+      padding: 12px 25px;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(75, 108, 183, 0.4);
+    }
+
+    .btn-outline-primary {
+      border: 2px solid #4b6cb7;
+      color: #4b6cb7;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+      background: #4b6cb7;
+      color: white;
+    }
+
+    .score-display {
+      font-size: 2.8rem;
+      font-weight: bold;
+      color: #4b6cb7;
+      text-align: center;
+      margin: 20px 0;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .timer {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #e74c3c;
+      background: #ffeaea;
+      padding: 10px 15px;
+      border-radius: 50px;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .feedback-area {
+      margin-top: 25px;
+      padding: 20px;
+      border-radius: 10px;
+      background: #f8f9fa;
+      border-left: 5px solid #4b6cb7;
+    }
+
+    .correct {
+      color: #27ae60;
+      font-weight: 600;
+    }
+
+    .incorrect {
+      color: #e74c3c;
+      font-weight: 600;
+    }
+
+    .speed-feedback {
+      padding: 15px;
+      background: #e8f4fc;
+      border-radius: 10px;
+      margin-top: 15px;
+      border-left: 5px solid #3498db;
+    }
+
+    .progress {
+      height: 25px;
+      border-radius: 10px;
+      margin: 15px 0;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      transition: width 0.5s ease;
+    }
+
+    .history-item {
+      padding: 15px;
+      border-radius: 10px;
+      background: white;
+      margin-bottom: 15px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      border-left: 4px solid #4b6cb7;
+    }
+
+    .instruction-box {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 25px;
+      border-left: 5px solid #2196f3;
+    }
+
+    .text-sample {
+      cursor: pointer;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      background: #f8f9fa;
+      transition: all 0.3s ease;
+      border: 2px solid #e9ecef;
+    }
+
+    .text-sample:hover {
+      background: #e9ecef;
+      transform: translateX(5px);
+    }
+
+    .text-sample.active {
+      background: #4b6cb7;
+      color: white;
+      border-color: #4b6cb7;
+    }
+
+    .speed-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 20px 0;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 10px;
+    }
+
+    .speed-meter {
+      width: 100%;
+      height: 20px;
+      background: #e9ecef;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .speed-level {
+      height: 100%;
+      width: 40%;
+      background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+
+    .speed-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    @media (max-width: 768px) {
+      .text-display {
+        font-size: 1.2rem;
+        padding: 15px;
+      }
+
+      .score-display {
+        font-size: 2.2rem;
+      }
+
+      .header h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header text-center">
+      <h1><i class="bi bi-mic-fill me-2"></i>Text-to-Speech Practice</h1>
+      <p class="lead">Improve your English pronunciation with our speech recognition technology</p>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="practice-card">
+          <h3><i class="bi bi-card-text me-2"></i>Practice Text</h3>
+          <div class="timer" id="timer">Time: 00:40</div>
+          <div class="text-display" id="textDisplay">
+            Select a text sample from the right to begin practice. You will have 40 seconds to read the text aloud.
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <button class="btn btn-primary" id="startBtn">
+              <i class="bi bi-mic-fill me-2"></i>Start Recording
+            </button>
+            <button class="btn btn-outline-primary" id="stopBtn" disabled>
+              <i class="bi bi-stop-circle me-2"></i>Stop Recording
+            </button>
+            <button class="btn btn-outline-primary" id="playTextBtn">
+              <i class="bi bi-play-circle me-2"></i>Play Text
+            </button>
+          </div>
+
+          <div class="speed-indicator">
+            <div class="me-3">
+              <strong>Speaking Speed:</strong>
+              <span id="speedValue">0 WPM</span>
+            </div>
+            <div class="speed-meter">
+              <div class="speed-level" id="speedLevel"></div>
+            </div>
+          </div>
+          <div class="speed-labels">
+            <span>Too Slow</span>
+            <span>Ideal</span>
+            <span>Too Fast</span>
+          </div>
+        </div>
+
+        <div class="practice-card">
+          <h3><i class="bi bi-graph-up me-2"></i>Results</h3>
+          <div id="resultsArea">
+            <p class="text-center">Your results will appear here after recording</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="practice-card">
+          <h3><i class="bi bi-collection me-2"></i>Text Samples</h3>
+          <p>Select a text to practice:</p>
+
+          <div class="text-sample active"
+            data-text="Hello, my name is John. I am learning English. I like to practice speaking every day.">
+            <strong>Basic Introduction</strong>
+            <p class="mb-0 text-muted">Short and simple sentences for beginners</p>
+          </div>
+
+          <div class="text-sample"
+            data-text="The weather is nice today. I would like to go to the park. Do you want to come with me?">
+            <strong>Weather & Invitation</strong>
+            <p class="mb-0 text-muted">Common everyday conversation</p>
+          </div>
+
+          <div class="text-sample"
+            data-text="The quick brown fox jumps over the lazy dog. This sentence contains every letter in the English alphabet.">
+            <strong>Alphabet Practice</strong>
+            <p class="mb-0 text-muted">Contains all English letters</p>
+          </div>
+
+          <div class="text-sample"
+            data-text="She sells seashells by the seashore. The shells she sells are surely seashells.">
+            <strong>Tongue Twister 1</strong>
+            <p class="mb-0 text-muted">Challenging pronunciation practice</p>
+          </div>
+
+          <div class="text-sample"
+            data-text="The phenomenon of photosynthesis is fundamentally important for biological systems, converting solar energy into chemical energy.">
+            <strong>Scientific Concept</strong>
+            <p class="mb-0 text-muted">Advanced vocabulary and complex sentences</p>
+          </div>
+        </div>
+
+        <div class="practice-card">
+          <h3><i class="bi bi-clock-history me-2"></i>Practice History</h3>
+          <div id="practiceHistory">
+            <p class="text-muted">Your practice history will appear here</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // DOM Elements
+      const textDisplay = document.getElementById('textDisplay');
+      const timer = document.getElementById('timer');
+      const startBtn = document.getElementById('startBtn');
+      const stopBtn = document.getElementById('stopBtn');
+      const playTextBtn = document.getElementById('playTextBtn');
+      const resultsArea = document.getElementById('resultsArea');
+      const practiceHistory = document.getElementById('practiceHistory');
+      const textSamples = document.querySelectorAll('.text-sample');
+      const speedValue = document.getElementById('speedValue');
+      const speedLevel = document.getElementById('speedLevel');
+
+      // State variables
+      let currentText = '';
+      let recognition = null;
+      let synthesis = window.speechSynthesis;
+      let timerInterval = null;
+      let timeLeft = 40;
+      let isRecording = false;
+      let speechStartTime = null;
+      let speechEndTime = null;
+
+      // Initialize with first text sample
+      currentText = textSamples[0].dataset.text;
+      textDisplay.textContent = currentText;
+
+      // Event Listeners
+      textSamples.forEach(sample => {
+        sample.addEventListener('click', function () {
+          textSamples.forEach(s => s.classList.remove('active'));
+          this.classList.add('active');
+          currentText = this.dataset.text;
+          textDisplay.textContent = currentText;
+          resetUI();
+        });
+      });
+
+      startBtn.addEventListener('click', startRecording);
+      stopBtn.addEventListener('click', stopRecording);
+      playTextBtn.addEventListener('click', playText);
+
+      // Check if browser supports Speech Recognition
+      if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = function (event) {
+          speechEndTime = Date.now();
+          const speechResult = event.results[0][0].transcript;
+          const timeTaken = (speechEndTime - speechStartTime) / 1000;
+          const accuracyScore = calculateScore(currentText, speechResult);
+          const speedScore = calculateSpeedScore(currentText, timeTaken);
+          const totalScore = Math.round(accuracyScore * 0.7 + speedScore * 0.3);
+
+          showResults(totalScore, speechResult, timeTaken);
+          addToHistory(totalScore, timeTaken);
+        };
+
+        recognition.onerror = function (event) {
+          console.error('Speech recognition error', event.error);
+          stopRecording();
+          resultsArea.innerHTML = `<div class="alert alert-danger">Error: ${event.error}. Please try again.</div>`;
+        };
+
+        recognition.onend = function () {
+          stopRecording();
+        };
+      } else {
+        startBtn.disabled = true;
+        resultsArea.innerHTML = '<div class="alert alert-warning">Speech recognition is not supported in your browser. Please use Chrome or Edge.</div>';
+      }
+
+      // Functions
+      function startRecording() {
+        if (!recognition) return;
+
+        recognition.start();
+        isRecording = true;
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        speechStartTime = Date.now();
+
+        startTimer();
+
+        resultsArea.innerHTML = '<div class="alert alert-info">Recording started... Speak now!</div>';
+      }
+
+      function stopRecording() {
+        if (recognition && isRecording) {
+          recognition.stop();
+        }
+
+        isRecording = false;
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+
+        if (timerInterval) {
+          clearInterval(timerInterval);
+        }
+      }
+
+      function startTimer() {
+        timeLeft = 40;
+        timer.textContent = `Time: 00:${timeLeft.toString().padStart(2, '0')}`;
+
+        if (timerInterval) clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          timer.textContent = `Time: 00:${timeLeft.toString().padStart(2, '0')}`;
+
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            stopRecording();
+            timer.textContent = "Time's up!";
+          }
+        }, 1000);
+      }
+
+      function calculateScore(expected, actual) {
+        const expectedWords = expected.toLowerCase().split(/\s+/);
+        const actualWords = actual.toLowerCase().split(/\s+/);
+
+        let matchedWords = 0;
+        let correctSequence = 0;
+
+        // Check word accuracy
+        for (let i = 0; i < Math.min(expectedWords.length, actualWords.length); i++) {
+          const expectedWord = expectedWords[i].replace(/[^\w]/g, '');
+          const actualWord = actualWords[i].replace(/[^\w]/g, '');
+
+          if (actualWord === expectedWord) {
+            matchedWords++;
+            correctSequence++;
+          } else if (i > 0 && actualWords[i - 1] === expectedWords[i - 1]) {
+            // Break sequence on incorrect word
+            correctSequence = 0;
+          }
+        }
+
+        // Calculate base score (0-100)
+        const wordAccuracy = (matchedWords / expectedWords.length) * 70;
+
+        // Add bonus for correct sequences
+        const sequenceBonus = Math.min(30, correctSequence * 3);
+
+        return Math.min(100, wordAccuracy + sequenceBonus);
+      }
+
+      function calculateSpeedScore(text, timeTaken) {
+        const wordCount = text.split(/\s+/).length;
+        const wpm = Math.round(wordCount / (timeTaken / 60));
+
+        // Update speed indicator
+        speedValue.textContent = `${wpm} WPM`;
+
+        // Calculate speed score (0-100)
+        let speedScore = 0;
+
+        // Ideal range is 140-160 WPM
+        if (wpm >= 140 && wpm <= 160) {
+          speedScore = 100; // Perfect speed
+          speedLevel.style.width = '40%';
+          speedLevel.style.background = 'linear-gradient(90deg, #4b6cb7 0%, #182848 100%)';
+        } else if (wpm >= 120 && wpm < 140) {
+          speedScore = 80 - (140 - wpm); // Slightly slow
+          speedLevel.style.width = '30%';
+          speedLevel.style.background = 'linear-gradient(90deg, #4b6cb7 0%, #3498db 100%)';
+        } else if (wpm > 160 && wpm <= 180) {
+          speedScore = 80 - (wpm - 160); // Slightly fast
+          speedLevel.style.width = '50%';
+          speedLevel.style.background = 'linear-gradient(90deg, #4b6cb7 0%, #3498db 100%)';
+        } else if (wpm >= 100 && wpm < 120) {
+          speedScore = 60 - (120 - wpm); // Too slow
+          speedLevel.style.width = '20%';
+          speedLevel.style.background = 'linear-gradient(90deg, #4b6cb7 0%, #e74c3c 100%)';
+        } else if (wpm > 180 && wpm <= 200) {
+          speedScore = 60 - (wpm - 180); // Too fast
+          speedLevel.style.width = '60%';
+          speedLevel.style.background = 'linear-gradient(90deg, #4b6cb7 0%, #e74c3c 100%)';
+        } else {
+          speedScore = 30; // Very poor speed
+          speedLevel.style.width = wpm < 100 ? '10%' : '70%';
+          speedLevel.style.background = '#e74c3c';
+        }
+
+        return Math.max(0, speedScore);
+      }
+
+      function showResults(score, userSpeech, timeTaken) {
+        const wordCount = currentText.split(/\s+/).length;
+        const wpm = Math.round(wordCount / (timeTaken / 60));
+
+        let feedback = '';
+        let speedFeedback = '';
+
+        if (score >= 90) {
+          feedback = '<p class="correct">Excellent! Your pronunciation is very accurate.</p>';
+        } else if (score >= 70) {
+          feedback = '<p class="correct">Good job! Your pronunciation is mostly accurate.</p>';
+        } else if (score >= 50) {
+          feedback = '<p>Not bad! With more practice, you will improve.</p>';
+        } else {
+          feedback = '<p class="incorrect">Keep practicing! Try to listen carefully to each word.</p>';
+        }
+
+        if (wpm >= 140 && wpm <= 160) {
+          speedFeedback = '<p class="correct">Your speaking speed is perfect!</p>';
+        } else if (wpm >= 120 && wpm < 140) {
+          speedFeedback = '<p>Your speaking speed is good, but try to speak a bit faster.</p>';
+        } else if (wpm > 160 && wpm <= 180) {
+          speedFeedback = '<p>Your speaking speed is good, but try to slow down slightly for better clarity.</p>';
+        } else if (wpm >= 100 && wpm < 120) {
+          speedFeedback = '<p class="incorrect">Your speech is too slow. Try to speak faster.</p>';
+        } else if (wpm > 180 && wpm <= 200) {
+          speedFeedback = '<p class="incorrect">Your speech is too fast. Try to slow down for better clarity.</p>';
+        } else {
+          speedFeedback = '<p class="incorrect">Your speaking speed needs significant improvement.</p>';
+        }
+
+        resultsArea.innerHTML = `
+                    <div class="score-display">${score}/100</div>
+                    <div class="feedback-area">
+                        ${feedback}
+                        <p>You said: <strong>"${userSpeech}"</strong></p>
+                        <p>Expected: <strong>"${currentText}"</strong></p>
+                        <p>Time taken: <strong>${timeTaken.toFixed(1)} seconds</strong></p>
+                        <p>Speaking speed: <strong>${wpm} words per minute</strong></p>
+                        <div class="speed-feedback">
+                            <h5><i class="bi bi-speedometer2 me-2"></i>Speed Feedback</h5>
+                            ${speedFeedback}
+                            <p class="mb-0"><small>Ideal speaking speed for English is 140-160 words per minute.</small></p>
+                        </div>
+                    </div>
+                `;
+      }
+
+      function addToHistory(score, timeTaken) {
+        const wordCount = currentText.split(/\s+/).length;
+        const wpm = Math.round(wordCount / (timeTaken / 60));
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        historyItem.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <strong>Score: ${score}/100</strong>
+                        <span class="text-muted">${timeString}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <span>Speed: ${wpm} WPM</span>
+                        <span>Time: ${timeTaken.toFixed(1)}s</span>
+                    </div>
+                `;
+
+        if (practiceHistory.querySelector('.text-muted')) {
+          practiceHistory.innerHTML = '';
+        }
+
+        practiceHistory.prepend(historyItem);
+      }
+
+      function playText() {
+        if (synthesis.speaking) {
+          synthesis.cancel();
+        }
+
+        const utterance = new SpeechSynthesisUtterance(currentText);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9; // Slightly slower than normal for clarity
+
+        synthesis.speak(utterance);
+      }
+
+      function resetUI() {
+        stopRecording();
+        resultsArea.innerHTML = '<p class="text-center">Your results will appear here after recording</p>';
+        speedValue.textContent = '0 WPM';
+        speedLevel.style.width = '0%';
+
+        if (timerInterval) {
+          clearInterval(timerInterval);
+        }
+        timer.textContent = 'Time: 00:40';
+      }
+    });
+  </script>
+</body>
+
+</html> 

@@ -1,0 +1,18 @@
+# Enable rewrite engine
+RewriteEngine On
+
+# Base directory (for subfolder projects like /pawan_pte/)
+RewriteBase /pawan_pte/
+
+# --- SKIP certain folders (like inc, assets, uploads, etc.)
+RewriteCond %{REQUEST_URI} ^/pawan_pte/(inc|assets|uploads)/ [NC]
+RewriteRule .* - [L]
+
+# --- Handle extensionless .php URLs ---
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.+?)/?$ $1.php [L]
+
+# --- Force redirect from file.php → /file ---
+RewriteCond %{THE_REQUEST} \s/+(.+?)\.php[\s?] [NC]
+RewriteRule ^(.+)\.php$ /pawan_pte/$1 [R=301,L]
